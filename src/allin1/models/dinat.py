@@ -4,24 +4,25 @@
 """
 
 import math
+from abc import ABC, abstractmethod
+from typing import Callable, Optional, Tuple
+
 import torch
-from abc import ABC,  abstractmethod
-from typing import Optional, Tuple, Callable
+
 try:  # ── 1. "Short" names (was before ~0.19)
     from natten.functional import na1d_av, na1d_qk, na2d_av, na2d_qk
 except ImportError:
     try:  # ── 2. "Long" names (remained as alias)
-        from natten.functional import (
-            natten1dav as na1d_av,
-            natten1dqkrpb as na1d_qk,
-            natten2dav as na2d_av,
-            natten2dqkrpb as na2d_qk,
-        )
+        from natten.functional import natten1dav as na1d_av
+        from natten.functional import natten1dqkrpb as na1d_qk
+        from natten.functional import natten2dav as na2d_av
+        from natten.functional import natten2dqkrpb as na2d_qk
     except ImportError:
         # ── 3. Modern >=0.20: Building wrappers based on generic functions
-        from natten.functional import neighborhood_attention_generic as _na_generic
+        from natten.functional import \
+            neighborhood_attention_generic as _na_generic
 
-        def wrap_qk(dim: int) -> Callable:
+        def _wrap_qk(dim: int) -> Callable:
             """(factory: creates a q-k function for 1-D or 2-D"""
             def _fn(q, k, kernel, dilation, *, rpb=None):
                 ks = kernel if dim == 2 else int(kernel)          # (k,k)  или  k
