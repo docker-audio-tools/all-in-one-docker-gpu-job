@@ -10,7 +10,8 @@ from typing import Callable, Optional, Tuple
 import torch
 
 try:  # ── 1. "Short" names (was before ~0.19)
-    from natten.functional import na1d_av, na1d_qk, na2d_av, na2d_qk
+    from natten.functional import natten1dqkrpb as na1d_qk, na1d_av
+    from natten.functional import natten2dqkrpb as na2d_qk, na2d_av
 except ImportError:
     try:  # ── 2. "Long" names (remained as alias)
         from natten.functional import natten1dav as na1d_av
