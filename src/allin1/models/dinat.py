@@ -196,8 +196,8 @@ class NeighborhoodAttention1d(_NeighborhoodAttentionNd):
       torch.zeros(num_heads, (2 * self.kernel_size - 1)),
       requires_grad=True,
     )
-    self.nattendqkrpb = natten1dqkrpb
-    self.nattendav = natten1dav
+    self.nattendqkrpb = na1d_qk
+    self.nattendav = na1d_av
 
 
 class NeighborhoodAttention2d(_NeighborhoodAttentionNd):
@@ -214,8 +214,8 @@ class NeighborhoodAttention2d(_NeighborhoodAttentionNd):
       torch.zeros(num_heads, (2 * self.kernel_size - 1), (2 * self.kernel_size - 1)),
       requires_grad=True,
     )
-    self.nattendqkrpb = natten2dqkrpb
-    self.nattendav = natten2dav
+    self.nattendqkrpb = na2d_qk
+    self.nattendav = na2d_av
 
 
 # Copied from transformers.models.nat.modeling_nat.NeighborhoodAttentionOutput
