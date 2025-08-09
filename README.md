@@ -1,4 +1,24 @@
-Tested in Mac Os with python==3.8.3
+# TL;DR
+
+Docker cmd
+```bash
+  docker build -t  allinone -f ./Dockerfile .
+  docker run -it \
+     -v $PWD/audio:/app/input \
+     -v $PWD/results:/app/output \
+     allinone \
+     --out-dir /app/output/analysis \
+     --viz-dir /app/output/visualizations \
+     --sonif-dir /app/output/sonifications \
+     /app/input/FILENAME.wav
+```
+
+Conda env (tested in MacOS)
+```bash
+  conda create -n alliono-py3.8.3 python==3.8.3
+  pip install -r requirements.txt 
+  pip install allin1 
+```
 
 # All-In-One Music Structure Analyzer
 
