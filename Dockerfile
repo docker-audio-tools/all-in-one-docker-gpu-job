@@ -8,7 +8,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y cmake build-essential
 
 # Copy the requirements.txt file
-COPY requirements.txt .
+#COPY requirements.txt .
 COPY requirements_filtered.txt .
 
 # Install torch, torchvision, torchaudio, and Cython first
