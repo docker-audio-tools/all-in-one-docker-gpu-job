@@ -1,3 +1,5 @@
+Tested in Mac Os with python==3.8.3
+
 # All-In-One Music Structure Analyzer
 
 [![Visual Demo](https://img.shields.io/badge/Visual-Demo-8A2BE2)](https://taejun.kim/music-dissector/)
