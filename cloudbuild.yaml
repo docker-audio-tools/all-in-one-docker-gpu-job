@@ -1,0 +1,13 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+    - 'build'
+    - '-f'
+    - 'Dockerfile.gcp'
+    - '-t'
+    - 'gcr.io/${PROJECT_ID}/my-allinone-image:${_MY_TAG}'
+    - '--cache-from'
+    - 'gcr.io/${PROJECT_ID}/my-allinone-image:${_MY_TAG}'
+    - '.'
+images:
+- gcr.io/${_PROJECT_ID}/my-allinone-image:${_MY_TAG}
