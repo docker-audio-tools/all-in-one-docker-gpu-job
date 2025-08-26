@@ -7,12 +7,32 @@ import subprocess
 # Initialize the GCS client
 client = storage.Client()
 bucket_name = os.getenv('BUCKET_NAME', 'default-bucket-name')
-stems_number = os.getenv('STEMS_NUMBER', '5')
-print(f"Stems amount: {stems_number}")
-input_dir = 'input/'
-output_dir = 'output-allinone/'
+input_dir = os.getenv('INPUT_PATH', 'input/')
+output_dir = os.getenv('OUTPUT_PATH', 'output-allinone/')
 
 print("PENDING: write processing logs to /logs/")
+
+from tqdm import tqdm
+import os
+
+# Controla si TQDM está activado o desactivado mediante una variable de entorno (progress bar)
+# En producción, típicamente se desactiva para evitar problemas con logs 
+TQDM_OFF = os.getenv("TQDM_DISABLE", "1") == "1"  # default: apagado en prod
+tqdm = lambda *a, **k: __import__("tqdm").tqdm(*a, disable=TQDM_OFF, **k)
+
+
+import torch
+import natten
+import sys
+print("Torch:", torch.__version__)
+print("CUDA:", torch.version.cuda)
+print("NATTEN:", natten.__version__)
+print("Python:", sys.version)
+
+# import torch
+print("CUDA available:", torch.cuda.is_available())
+if torch.cuda.is_available():
+    print("GPU:", torch.cuda.get_device_name(0))
 
 def list_files(bucket_name, prefix):
     """Lists all the blobs in the bucket that begin with the prefix."""
@@ -43,21 +63,23 @@ def process_files():
         print(f"Downloading {blob.name}")
         download_blob(bucket_name, blob.name, local_input_path)
 
+        
         # Process the file using allinone
         print(f"Processing {local_input_path}")
         subprocess.run(['python', '-m', 'allin1.cli',
                         '--out-dir','/app/output/analysis',
-                        '--viz-dir','/app/output/visualizations',
-                        '--sonif-dir','/app/output/sonifications',
-                        '--demix-dir','/app/output/tracks',
-                        '--spec-dir','/app/output/spectrograms',
-                        '--keep-by-products',
                         local_input_path])
 
+                        # '--keep-byproducts',
+                        #'--demix-dir','/app/output/tracks',
+                        # '--viz-dir','/app/output/visualizations',
+                        # '--sonif-dir','/app/output/sonifications',
+                        # '--spec-dir','/app/output/spectrograms',
         #NOTE: keep_byproducts=True by default is False (without the flag) and deletes the demixed tracks and spectrograms after processing
 
 
-        local_output_path_final = "/app/output/""
+        filename = os.path.splitext(os.path.basename(blob.name))[0]
+        local_output_path_final = "/app/output/"
         print(f"Final output is in {local_output_path_final}")
 
         # Upload the processed file back to GCS

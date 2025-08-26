@@ -1,0 +1,60 @@
+ARG BASE=python:3.10-slim
+FROM ${BASE}
+# Torch 2.5.1 (CPU only)
+#FROM pytorch/pytorch:2.5.1-cpu # no existe
+
+ENV DEBIAN_FRONTEND=noninteractive PIP_NO_CACHE_DIR=1
+WORKDIR /app
+
+# Herramientas básicas para compilar extensiones (madmom necesita Cython)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential cmake git && rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip + prereqs de madmom
+RUN python -m pip install --upgrade pip \
+ && pip install "cython>=0.29" "numpy>=1.23" "scipy>=1.10"
+
+ # --- TORCH 2.2.2 CPU (no CUDA) ---
+RUN pip install --no-cache-dir torch==2.5.0 torchvision torchaudio
+# Evitar el conflicto de ABI: fija NumPy (Torch 2.5 soporta NumPy 2.x)
+RUN pip install "numpy==2.0.2" "scipy>=1.10" "cython>=0.29"
+# --- NATTEN 0.17.5 CPU wheel (Torch 2.5.1 CPU) ---
+#pip install "natten==0.15.0" -f hsttps://whl.natten.org
+RUN pip install "natten==0.17.5+torch250cpu" -f https://whl.natten.org
+
+
+# CPU only version
+# RUN pip install natten==0.15.0
+#RUN pip install "natten==0.15.1" -f https://whl.natten.org
+
+RUN pip install madmom==0.16.1
+
+# Sanity check: debe imprimir versiones y cargar libnatten sin error
+# RUN python - <<'PY'
+# import torch, natten, sys
+# print("Torch:", torch.__version__, "CUDA:", torch.version.cuda, "Py:", sys.version)
+# print("NATTEN:", natten.__version__)
+# from natten import libnatten
+# print("libnatten OK")
+# PY
+
+# madmom desde repo con submódulos (para Py3.10+)
+ARG MADMOM_REF=main
+RUN git clone --depth=1 --branch ${MADMOM_REF} --recurse-submodules \
+      https://github.com/CPJKU/madmom /tmp/madmom \
+ && cd /tmp/madmom && git submodule update --init --recursive \
+ && python -m pip install .
+
+# Dependencias de la app (filtrando torch/natten para no romper compatibilidad)
+COPY requirements_filtered.txt .
+RUN grep -viE '^(torch($|[^a-z])|torchvision|torchaudio|natten)($|==|>=|<=)' requirements_filtered.txt > /tmp/req.txt \
+ && pip install -r /tmp/req.txt \
+ && pip install google-cloud-storage
+
+# Copia tu código
+COPY . .
+RUN pip install -e .
+
+RUN mkdir -p /app/output
+
+CMD ["python", "process_audio.py"]

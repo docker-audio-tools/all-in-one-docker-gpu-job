@@ -152,7 +152,7 @@ class _NeighborhoodAttentionNd(ABC, nn.Module):
     
     # Compute NA between "query" and "key" to get the raw attention scores, and add relative positional biases.
     # attention_scores = natten2dqkrpb(query_layer, key_layer, self.rpb, self.dilation)
-    attention_scores = self.nattendqkrpb(query_layer, key_layer, self.rpb, self.kernel_size, self.dilation)
+    attention_scores = self.nattendqkrpb(query_layer, key_layer, self.kernel_size, self.dilation, rpb=self.rpb)
     
     # Normalize the attention scores to probabilities.
     attention_probs = nn.functional.softmax(attention_scores, dim=-1)

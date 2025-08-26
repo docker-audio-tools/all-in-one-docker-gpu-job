@@ -1,0 +1,50 @@
+diff --git a/src/allin1/models/natten_compat.py b/src/allin1/models/natten_compat.py
+new file mode 100644
+index 0000000..1111111
+--- /dev/null
++++ b/src/allin1/models/natten_compat.py
+@@ -0,0 +1,57 @@
++# Compatibilidad NATTEN 0.17.x ↔ 0.20/0.21
++# Traduce a un símbolo estable para el código de DiNAT.
++# Véase deprecaciones: natten2d*qkrpb → na2d_qk, etc. (no existe neighborhood_attention_generic). 
++# https://natten.org/operations/
++try:
++    # API antigua (0.17.x)
++    from natten.functional import (
++        natten1dqkrpb as _na1d_qk,
++        natten1dav    as _na1d_av,
++        natten2dqkrpb as _na2d_qk,
++        natten2dav    as _na2d_av,
++    )
++except Exception:  # API nueva (>=0.20)
++    from natten.functional import (
++        na1d_qk as _na1d_qk,
++        na1d_av as _na1d_av,
++        na2d_qk as _na2d_qk,
++        na2d_av as _na2d_av,
++    )
++
++def neighborhood_attention_generic(q, k, v, rpb, kernel_size, dilation, dim):
++    """
++    Wrapper compatible con el uso original en DiNAT.
++    q,k,v: [B, T(… ), H, Dh]
++    rpb: relative position bias (puede ser None si el backend lo ignora)
++    kernel_size, dilation: int o tupla según dim
++    dim: 1 ó 2
++    """
++    if dim == 1:
++        attn = _na1d_qk(q, k, rpb, kernel_size, dilation)
++        return _na1d_av(attn, v, kernel_size, dilation)
++    elif dim == 2:
++        attn = _na2d_qk(q, k, rpb, kernel_size, dilation)
++        return _na2d_av(attn, v, kernel_size, dilation)
++    else:
++        raise NotImplementedError("dim must be 1 or 2")
+diff --git a/src/allin1/models/dinat.py b/src/allin1/models/dinat.py
+index 2222222..3333333 100644
+--- a/src/allin1/models/dinat.py
++++ b/src/allin1/models/dinat.py
+@@ -1,10 +1,10 @@
+-from natten.functional import neighborhood_attention_generic
++from .natten_compat import neighborhood_attention_generic
+ # (resto del archivo sin cambios)

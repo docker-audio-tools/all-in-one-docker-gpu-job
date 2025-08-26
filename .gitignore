@@ -1,6 +1,8 @@
 *.mp3
 *.wav
 
+gcp-job-build.sh
+
 results/
 demix/
 spec/

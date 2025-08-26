@@ -1,0 +1,25 @@
+apiVersion: run.googleapis.com/v1
+kind: Job
+metadata:
+  name: allinone-gpu-job
+  labels:
+    cloud.googleapis.com/location: us-east4
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/gpu-zonal-redundancy-disabled: "true"
+    spec:
+      taskCount: 1
+      parallelism: 1
+      template:
+        spec:
+          containers:
+            - image: gcr.io/crowdstream-443823/my-allinone-image:latest
+              resources:
+                limits:
+                  cpu: "4"
+                  memory: "16Gi"
+                  nvidia.com/gpu: "1"
+          nodeSelector:
+            run.googleapis.com/accelerator: nvidia-l4

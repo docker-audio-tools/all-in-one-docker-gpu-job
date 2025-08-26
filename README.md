@@ -8,8 +8,6 @@ Docker cmd
      -v $PWD/results:/app/output \
      allinone \
      --out-dir /app/output/analysis \
-     --viz-dir /app/output/visualizations \
-     --sonif-dir /app/output/sonifications \
      /app/input/FILENAME.wav
 ```
 

@@ -1,0 +1,23 @@
+steps:
+# 1) Intentar traer cache; si no existe, seguir
+- name: 'gcr.io/cloud-builders/docker'
+  entrypoint: 'bash'
+  args:
+    - -c
+    - |
+      docker pull gcr.io/${PROJECT_ID}/my-allinone-image:${_MY_TAG} || echo "no previous cache"
+
+# 2) Build usando esa imagen como cache
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+    - build
+    - -f
+    - Dockerfile.gcp.cpu
+    - -t
+    - gcr.io/${PROJECT_ID}/my-allinone-image:${_MY_TAG}
+    - --cache-from
+    - gcr.io/${PROJECT_ID}/my-allinone-image:${_MY_TAG}
+    - .
+
+images:
+- gcr.io/${PROJECT_ID}/my-allinone-image:${_MY_TAG}
