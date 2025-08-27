@@ -1,5 +1,4 @@
-# Torch 2.5.1 + CUDA 12.4 + cuDNN9 (Python 3.10)
-# FROM pytorch/pytorch:2.6.0-cuda12.6-cudnn9-runtime
+# Torch 2.5.1 + CUDA 12.4 + cuDNN9 (Python 3.10)# FROM pytorch/pytorch:2.6.0-cuda12.6-cudnn9-runtime
 FROM pytorch/pytorch:2.5.0-cuda12.1-cudnn9-runtime
 
 ENV DEBIAN_FRONTEND=noninteractive PIP_NO_CACHE_DIR=1
@@ -8,7 +7,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential cmake git && rm -rf /var/lib/apt/lists/*
 
-# Requisitos para compilar extensiones (madmom)
+# Requirements for compiling extensions (madmom)
 RUN python -m pip install --upgrade pip \
  && pip install "cython>=0.29" "numpy>=1.23" "scipy>=1.10"
 
@@ -17,20 +16,13 @@ RUN python -m pip install --upgrade pip \
 # NATTEN que MATCHEA Torch 2.5.0 + cu12.1 GPU CUDA
 RUN pip install "natten==0.17.5+torch250cu121" -f https://whl.natten.org
 
-#cpu only
-#RUN pip install "natten==0.15.0" -f https://whl.natten.org
-
-# madmom desde git con submódulos (evita problemas con Py>=3.10)
+# madmom from git with submodules (avoids issues with Py>=3.10)
 RUN git clone --depth=1 --branch main --recurse-submodules \
       https://github.com/CPJKU/madmom /tmp/madmom \
  && cd /tmp/madmom && git submodule update --init --recursive \
  && python -m pip install .
 
-# Instalar tus deps SIN tocar torch/torchaudio/torchvision/natten
-# COPY requirements_filtered_gpu.txt .
-# RUN grep -viE '^(torch($|[^a-z])|torchvision|torchaudio|natten)($|==|>=|<=)' requirements_filtered_gpu.txt > /tmp/req.txt \
-#  && pip install -r /tmp/req.txt \
-#  && 
+# GCP buckets access
 RUN pip install google-cloud-storage
 
 COPY . .
@@ -38,7 +30,7 @@ RUN pip install -e .
 
 RUN mkdir -p /app/output
 
-# Sanity check (ahora debe pasar)
+# Sanity check
 # RUN python -c "import torch, natten; print('Torch:', torch.__version__); print('CUDA :', torch.version.cuda); print('NATTEN:', natten.__version__); from natten import libnatten; print('libnatten OK')"
 
 CMD ["python", "process_audio.py"]
