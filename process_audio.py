@@ -56,7 +56,8 @@ def process_files():
     files = list_files(bucket_name, input_dir)
     for blob in files:
         local_input_path = '/tmp/' + os.path.basename(blob.name)
-        local_output_path = '/tmp/output'
+        #local_output_path = '/app/output/'
+        local_output_path = '/app/output/analysis/'
         os.makedirs(local_output_path, exist_ok=True)
 
         # Download the file
@@ -79,21 +80,34 @@ def process_files():
 
 
         filename = os.path.splitext(os.path.basename(blob.name))[0]
-        local_output_path_final = "/app/output/"
-        print(f"Final output is in {local_output_path_final}")
 
-        # Upload the processed file back to GCS
-        output_files = os.listdir(local_output_path_final)
+        print(f"Checking outputs in {local_output_path}")
+        try:
+            output_files = [f for f in os.listdir(local_output_path) if os.path.isfile(os.path.join(local_output_path, f))]
+        except FileNotFoundError:
+            print(f"[ERROR] Output directory {local_output_path} not found.")
+            continue
+
+        if not output_files:
+            print(f"[WARNING] No files found to upload for {blob.name}. Skipping.")
+            continue
+
+        # Upload processed files
         for output_file in output_files:
-            full_output_path = os.path.join(local_output_path_final, output_file)
-            gcs_output_path = os.path.join(output_dir,filename,os.path.basename(output_file))
+            full_output_path = os.path.join(local_output_path, output_file)
+            gcs_output_path = os.path.join(output_dir, filename, output_file)
             print(f"Uploading {full_output_path} to {gcs_output_path}")
-            upload_blob(bucket_name, full_output_path, gcs_output_path)
 
-        # Clean up
-        #os.remove(local_input_path)
-        #for f in output_files:
-        #    os.remove(os.path.join(local_output_path, f))
+            try:
+                upload_blob(bucket_name, full_output_path, gcs_output_path)
+            except FileNotFoundError:
+                print(f"[ERROR] File not found during upload: {full_output_path}")
+                continue
+
+        # Clean-up opcional
+        # os.remove(local_input_path)
+        # for f in output_files:
+        #     os.remove(os.path.join(local_output_path, f))
 
 if __name__ == "__main__":
     process_files()

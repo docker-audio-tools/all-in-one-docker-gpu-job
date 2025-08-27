@@ -11,16 +11,27 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential cmake git && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip + prereqs de madmom
-RUN python -m pip install --upgrade pip \
- && pip install "cython>=0.29" "numpy>=1.23" "scipy>=1.10"
+RUN python -m pip install --upgrade pip 
+#\
+# && pip install "cython>=0.29" "numpy>=1.23" "scipy>=1.10"
 
  # --- TORCH 2.2.2 CPU (no CUDA) ---
 RUN pip install --no-cache-dir torch==2.5.0 torchvision torchaudio
 # Evitar el conflicto de ABI: fija NumPy (Torch 2.5 soporta NumPy 2.x)
 RUN pip install "numpy==2.0.2" "scipy>=1.10" "cython>=0.29"
+
+# --- PyTorch 2.5.0 CPU (usar índice CPU para evitar CUDA) ---
+RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu \
+    torch==2.5.0 torchvision==0.20.0 torchaudio==2.5.0
+
+# NATTEN versions (from versions: 0.14.2.post4, 0.14.4, 0.14.5, 0.14.6, 0.15.0, 0.15.1, 0.17.0, 0.17.1, 0.17.3, 0.17.4, 0.17.5, 0.17.5+torch250cpu, 0.17.5+torch250cu121, 0.17.5+torch250cu124, 0.17.5+torch260cpu, 0.17.5+torch260cu124, 0.17.5+torch260cu126, 0.20.0, 0.20.0+torch270cu126, 0.20.0+torch270cu128, 0.20.1, 0.20.1+torch270cu126, 0.20.1+torch270cu128, 0.21.0, 0.21.0+torch270cu126, 0.21.0+torch270cu128)
+
+
 # --- NATTEN 0.17.5 CPU wheel (Torch 2.5.1 CPU) ---
 #pip install "natten==0.15.0" -f hsttps://whl.natten.org
-RUN pip install "natten==0.17.5+torch250cpu" -f https://whl.natten.org
+#RUN pip install "natten==0.17.5+torch250cpu" -f https://whl.natten.org
+RUN pip install "natten==0.17.5" -f https://whl.natten.org
+#RUN pip install "natten==0.15.1" -f https://whl.natten.org
 
 
 # CPU only version

@@ -1,6 +1,6 @@
 # TL;DR
 
-Docker cmd
+### Docker @ Mac Os with M1/M2/M3 chip
 ```bash
   docker build -t  allinone -f ./Dockerfile .
   docker run -it \
@@ -11,12 +11,37 @@ Docker cmd
      /app/input/FILENAME.wav
 ```
 
-Conda env (tested in MacOS)
+### GCP JOB
+
+With GPU CUDA enabled
+````
+gcloud builds submit \
+  --config=cloudbuild_gpu.yaml \
+  --project {PROJECT-ID} \
+  --substitutions=_MY_TAG=gpu
+````
+Check [README_GCP_JOB.md](README_GCP_JOB.md)
+
+### Conda environment @ MacOS
 ```bash
   conda create -n alliono-py3.8.3 python==3.8.3
   pip install -r requirements.txt 
   pip install allin1 
 ```
+
+## Notes on Compatibility and Deployment (2025 Update by hordia)
+
+- **NATTEN Import Patches:**  
+  The codebase now includes patches to handle imports for different versions of the NATTEN library. This ensures compatibility across various environments and NATTEN releases.
+
+- **Apple Silicon (MacOS ARM):**  
+  Both Docker and manual installation have been tested and confirmed to work on MacOS systems with ARM-based Apple Silicon (M1, M2, M3). You can use the package natively or via Docker on these devices.
+
+- **Google Cloud Platform (GCP) Deployment:**  
+  The provided Dockerfile can be used to run the analyzer as a GCP Job, with support for reading from and writing to Google Cloud Storage buckets.  
+  **Note:** Currently, only the GPU version of the Dockerfile works reliably for GCP Jobs. The CPU version is not yet functional.
+
+If you encounter issues with NATTEN or deployment on specific platforms, please check the relevant Dockerfile and patches, or open an issue.
 
 # All-In-One Music Structure Analyzer
 
@@ -484,3 +509,4 @@ If you use this package for your research, please cite the following paper:
   year={2023}
 }
 ```
+
