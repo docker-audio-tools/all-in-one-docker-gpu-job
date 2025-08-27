@@ -1,4 +1,6 @@
 # GCP config
+
+```
 	gcloud init
 
 	gcloud auth configure-docker
@@ -15,37 +17,37 @@
   --config=cloudbuild.yaml \
   --project crowdstream \
   --substitutions=_MY_TAG=$(date -u +%Y%m%d%H%M%S)
+```
   
 
-  gcloud services enable run.googleapis.com cloudbuild.googleapis.com
- JOB=allinone-gpu-job                                  
+gcloud services enable run.googleapis.com cloudbuild.googleapis.com
+JOB=allinone-gpu-job                                  
 REGION=us-east4       
 
-
-GPU quota request
+## GPU quota request
 without zonal redunancy lower price
 g.co/cloudrun/gpu-quota
 
-
 To execute this job, use:
+```
 gcloud beta run jobs execute allinone-gpu-job  --region=us-east4
+```
 
 GPU and CPU images
+```
 gcloud builds submit \
   --config=cloudbuild_gpu.yaml \
-  --project crowdstream-443823 \
+  --project crowdstream \
   --substitutions=_MY_TAG=gpu
 
   gcloud builds submit \
   --config=cloudbuild_cpu.yaml \
-  --project crowdstream-443823 \
+  --project crowdstream \
   --substitutions=_MY_TAG=cpu
-
-
+```
 
 You can verify this by checking the list of images in GCR:
 	gcloud container images list --repository=[gcr.io/[PROJECT_ID]](http://gcr.io/%5BPROJECT_ID%5D)
-
 
 	gcloud run deploy my-allinone-service [params]
 
@@ -57,21 +59,23 @@ Then:
 
 ## Minimum requirements (review)
 
-mem: 4GiB
-cpu: 2
-
-Evaluar: 8GiB
+mem: 16GiB
 cpu: 4
 
-y timeout: 15min
-retries: 3
+timeout: 10min
+retries: 1
 
 ## Define env vars on GCP config:
 
-then:
-	bucket_name = os.getenv('BUCKET_NAME', 'default-bucket-name')
-	stems_number = os.getenv('STEMS_NUMBER', '5')
+## Environment Variables
 
+Set the following environment variables in your GCP configuration:
+
+- `BUCKET_NAME`: Name of the Google Cloud Storage bucket to use.
+- `INPUT_PATH`: Path within the bucket for input data (default: `input/`).
+- `OUTPUT_PATH`: Path within the bucket for output data (default: `output-allinone/`).
+
+These variables can be configured in the Cloud Run job or service settings to customize data locations.
 
 ## Download processed dataset
 gsutil -m cp -r \
