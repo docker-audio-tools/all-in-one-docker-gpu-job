@@ -22,13 +22,20 @@ RUN git clone --depth=1 --branch main --recurse-submodules \
  && cd /tmp/madmom && git submodule update --init --recursive \
  && python -m pip install .
 
-# GCP buckets access
-RUN pip install google-cloud-storage
+# GCP buckets access and huggingface_hub for model downloads
+RUN pip install google-cloud-storage huggingface_hub
 
 COPY . .
 RUN pip install -e .
 
 RUN mkdir -p /app/output
+
+# Pre-download all models to avoid downloading them during each execution
+# Download model files directly using huggingface_hub without loading the models
+RUN python -c "from huggingface_hub import hf_hub_download; \
+models = ['harmonix-fold0-0vra4ys2.pth', 'harmonix-fold1-3ozjhtsj.pth', 'harmonix-fold2-gmgo0nsy.pth', 'harmonix-fold3-i92b7m8p.pth', 'harmonix-fold4-1bql5qo0.pth', 'harmonix-fold5-x4z5zeef.pth', 'harmonix-fold6-x7t226rq.pth', 'harmonix-fold7-qwwskhg6.pth']; \
+[hf_hub_download(repo_id='taejunkim/allinone', filename=model, cache_dir='/root/.cache/huggingface/hub') for model in models]; \
+print('All models downloaded successfully')"
 
 # Sanity check
 # RUN python -c "import torch, natten; print('Torch:', torch.__version__); print('CUDA :', torch.version.cuda); print('NATTEN:', natten.__version__); from natten import libnatten; print('libnatten OK')"
