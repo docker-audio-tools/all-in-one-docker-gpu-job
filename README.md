@@ -1,15 +1,53 @@
 # TL;DR
 
 ### Docker @ Mac Os with M1/M2/M3 chip
+
+Build the image:
 ```bash
-  docker build -t  allinone -f ./Dockerfile .
-  docker run -it \
-     -v $PWD/audio:/app/input \
-     -v $PWD/results:/app/output \
-     allinone \
-     --out-dir /app/output/analysis \
-     /app/input/FILENAME.wav
+docker build -t allinone -f ./Dockerfile .
 ```
+
+#### Analyze a single file:
+```bash
+docker run -it \
+   -v $PWD/audio:/app/input \
+   -v $PWD/results:/app/output \
+   allinone \
+   --out-dir /app/output/analysis \
+   /app/input/FILENAME.wav
+```
+
+#### Analyze multiple files:
+```bash
+docker run -it \
+   -v $PWD/audio:/app/input \
+   -v $PWD/results:/app/output \
+   allinone \
+   --out-dir /app/output/analysis \
+   /app/input/song1.wav /app/input/song2.mp3 /app/input/song3.wav
+```
+
+#### Analyze all files in a directory:
+```bash
+docker run -it \
+   -v $PWD/audio:/app/input \
+   -v $PWD/results:/app/output \
+   allinone \
+   --out-dir /app/output/analysis \
+   /app/input/*.wav
+```
+
+Or all audio files (WAV and MP3):
+```bash
+docker run -it \
+   -v $PWD/audio:/app/input \
+   -v $PWD/results:/app/output \
+   allinone \
+   --out-dir /app/output/analysis \
+   /app/input/*
+```
+
+**Note:** Each audio file will generate its own JSON file with analysis results in the output directory.
 
 ### GCP JOB
 

@@ -14,7 +14,7 @@ COPY requirements_filtered.txt .
 
 # Install torch, torchvision, torchaudio, and Cython first
 # Torch 2.2.2 CPU (no CUDA)
-RUN pip install --no-cache-dir torch==2.2.2 torchvision torchaudio=2.2.2 cython
+RUN pip install --no-cache-dir torch==2.2.2 torchvision torchaudio==2.2.2 cython
 
 # Install the rest of the dependencies
 RUN pip install --no-cache-dir -r requirements_filtered.txt
