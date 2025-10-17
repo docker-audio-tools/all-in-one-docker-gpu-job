@@ -6,7 +6,8 @@
 
 ### GCP JOB
 
-With GPU CUDA enabled
+Google Cloud Platform (GCP) with GPU CUDA enabled as job reading and writing from Cloud Storage buckets
+
 ````
 gcloud builds submit \
   --config=cloudbuild_gpu.yaml \
